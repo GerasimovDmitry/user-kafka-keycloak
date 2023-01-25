@@ -1,4 +1,4 @@
 insert into userkk(id, keycloak_id, username, name, company_id, isEnabled)
 values
-       (1, 'ba84693d-75dd-4053-b085-0dc1c40425ae', 'admin', 'superUser', 1, true),
-       (2, '46ce6874-8505-47b3-b246-8880123f0886', 'user', 'superUser', 1, true)
+       (3, '43265fff-27eb-41a7-b7ab-b8d9f031057f', 'testuser', 'testuser', 3, true),
+       (4, '2aef64a1-b006-427c-89cc-a11dcf23c446', 'testowner', 'testowner', 3, true)

@@ -41,6 +41,7 @@ public class WebSecurityConfiguration extends KeycloakWebSecurityConfigurerAdapt
 
                 sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
                 .antMatchers("/api/anonymous/**").permitAll()
+                .antMatchers("/m2m/**").permitAll()
                 .anyRequest().authenticated();
 
     }

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import javax.transaction.Transactional;
 import java.util.List;
 
-public interface UserkkRepository extends JpaRepository<Userkk, Long> {
+public interface UserkkRepository extends JpaRepository<Userkk, Integer> {
     Userkk findByUserName(String userName);
 
     @Modifying

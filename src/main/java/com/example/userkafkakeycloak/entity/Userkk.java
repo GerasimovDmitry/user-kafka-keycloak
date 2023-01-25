@@ -14,12 +14,12 @@ public class Userkk {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "keycloak_id")
     private String keycloak_id;
 
-    @Column(name = "userName")
+    @Column(name = "username")
     private String userName;
 
     @Column(name = "name")
@@ -28,7 +28,7 @@ public class Userkk {
     @Column(name = "company_id")
     private Integer company_id;
 
-    @Column(name = "isEnabled")
+    @Column(name = "isenabled")
     private Boolean isEnabled;
 
     public Userkk() {

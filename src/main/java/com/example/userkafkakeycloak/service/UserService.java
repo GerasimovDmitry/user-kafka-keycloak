@@ -1,5 +1,6 @@
 package com.example.userkafkakeycloak.service;
 
+import com.example.userkafkakeycloak.entity.Userkk;
 import com.example.userkafkakeycloak.repository.UserkkRepository;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientsResource;
@@ -21,6 +22,20 @@ public class UserService {
     public UserService(UserkkRepository repository, ConfigurationService configurationService) {
         this.userkkRepository = repository;
         this.configurationService = configurationService;
+    }
+
+    public List<Userkk> getAll() {
+        return this.userkkRepository.findAll();
+    }
+
+    public Userkk findById(Integer id) {
+        Userkk userkk = userkkRepository.findById(id).orElse(null);
+        assert userkk != null;
+        return userkk;
+    }
+
+    public void save(Userkk userkk) {
+        this.userkkRepository.save(userkk);
     }
 
     public void addRealmRoleToUser(String userId, String userName, String role_name, Keycloak keycloak){
@@ -58,5 +73,13 @@ public class UserService {
                 .toRepresentation()
         );
         user.roles().clientLevel(client_id).add(roleToAdd);
+    }
+
+    public List<Userkk> findByCompanyId(Integer valueOf) {
+        return this.userkkRepository.findByCompany_id(valueOf);
+    }
+
+    public void updateCompany(Integer id) {
+        this.userkkRepository.updateCompany_id(id);
     }
 }

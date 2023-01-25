@@ -1,5 +1,6 @@
 package com.example.userkafkakeycloak.service;
 
+import com.example.userkafkakeycloak.entity.Userkk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,9 @@ public class ConsumerService {
     public void consume(String message) throws IOException {
         System.out.println(message);
         logger.info(String.format("#### -> Producing message -> %s", message));
-/*        List<UserDTO> users = userService.findByCompanyId(Integer.valueOf(message));
-        for (UserDTO userdto : users) {
-            userService.updateCompany(Math.toIntExact(userdto.getId()));
-        }*/
+        List<Userkk> users = userService.findByCompanyId(Integer.valueOf(message));
+        for (Userkk user : users) {
+            userService.updateCompany(Math.toIntExact(user.getId()));
+        }
     }
 }

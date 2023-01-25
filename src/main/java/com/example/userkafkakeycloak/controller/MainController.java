@@ -1,11 +1,16 @@
 package com.example.userkafkakeycloak.controller;
 
+import com.example.userkafkakeycloak.entity.Company;
 import com.example.userkafkakeycloak.entity.RoleKey;
+import com.example.userkafkakeycloak.entity.UserCompany;
+import com.example.userkafkakeycloak.entity.Userkk;
+import com.example.userkafkakeycloak.m2m.M2MController;
 import com.example.userkafkakeycloak.repository.UserkkRepository;
 import com.example.userkafkakeycloak.service.ConfigurationService;
 import com.example.userkafkakeycloak.service.KeycloakService;
 import com.example.userkafkakeycloak.service.UserService;
 import com.google.gson.Gson;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -19,11 +24,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 @RequestMapping("/api")
@@ -38,12 +46,20 @@ public class MainController {
 
     UserkkRepository repository;
 
-    public MainController(ConfigurationService configurationService, KeycloakService keycloakService, KeycloakRestTemplate restTemplate, UserService userService, UserkkRepository repository) {
+    M2MController m2mController;
+
+    public MainController(ConfigurationService configurationService,
+                          KeycloakService keycloakService,
+                          KeycloakRestTemplate restTemplate,
+                          UserService userService,
+                          UserkkRepository repository,
+                          M2MController m2mController) {
         this.configurationService = configurationService;
         this.keycloakService = keycloakService;
         this.restTemplate = restTemplate;
         this.userService = userService;
         this.repository = repository;
+        this.m2mController = m2mController;
     }
     @GetMapping("/anonymous")
     public String getAnonymousInfo() {
@@ -139,4 +155,53 @@ public class MainController {
         return "Role was removed";
     }
 
+    @GetMapping("/users/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Userkk> usersAll() {
+        return this.userService.getAll();
+    }
+
+    @GetMapping(path = "/users/findById")
+    @PreAuthorize("hasRole('USER')")
+    public Userkk findById(@RequestParam("userId") Integer userId) throws ResourceNotFoundException {
+        Userkk user = userService.findById(userId);
+        System.out.println(user);
+        if (user == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
+        }
+        return user;
+    }
+
+    @GetMapping(path = "/users/company/findById")
+    @PreAuthorize("hasRole('USER')")
+    public UserCompany findUserCompanyById(@RequestParam("userId") Integer userId) throws ResourceNotFoundException {
+        Userkk user = userService.findById(userId);
+        if (user == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
+        }
+        Company company = m2mController.findById(user.getCompany_id());
+        UserCompany userCompany = new UserCompany();
+
+        userCompany.setCompany_id(company.getId());
+        userCompany.setUser_id(user.getId());
+        userCompany.setKeycloak_id(user.getKeycloak_id());
+        userCompany.setIsOwner(true);
+        userCompany.setUsername(user.getUserName());
+        userCompany.setName(user.getName());
+        userCompany.setCompanyName(company.getName());
+
+        return userCompany;
+    }
+
+    @DeleteMapping("/company/remove")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String removeCompany(@RequestParam("companyId") Integer companyId) {
+        Company company = m2mController.findById(companyId);
+        if (company == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
+        }
+
+        String response = m2mController.removeCompany(companyId);
+        return response + " was removed";
+    }
 }
